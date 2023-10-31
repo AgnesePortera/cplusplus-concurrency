@@ -2,15 +2,18 @@
 List of rules to be followed for thread safe development in C++.
 
 ### std::thread class
-|Method||
+|Constructors||
 |-|-|
 |default (1)|thread() noexcept;|
 |initialization (2)|template <class Fn, class... Args>explicit thread (Fn&& fn, Args&&... args);|
 |copy [deleted] (3)|thread (const thread&) = delete;|
 |move (4)|thread (thread&& x) noexcept;|
 
-Copy constructor is deleted, there is the move constructor.
-The initialization constructor gives the possibility to pass a function with arguments.
+> [!NOTE]
+> Copy constructor is deleted, there is the move constructor.
+
+> [!NOTE]
+> The initialization constructor gives the possibility to pass a function with arguments.
 
 ## How to launch a thread
 - add function to be executed as parameter to thread class constructor
@@ -77,7 +80,7 @@ The main thread cannot wait the detached thread for finishing and the secondary 
 
 After a call to **join** or **detach**, the thread object become non joinable and can be destroyed safely.
 
-## Pass parameters to a thread
+## Pass parameter to a thread
 ```
 void func_2(int& x)
 {
@@ -101,5 +104,53 @@ int main()
 }
 
 ```
+## Ownership of a thread
+For transferring the ownership of a thread, the move constructor can be used.
+- Thread object cannot be copied (no copy constructor present). The assignment in *Example1* generate a compile time error.
+- Using explicitly *std::move*, move one thread to another one (*Example2*), transferring the ownership from *thread_1* to *thread_2* variable.
+  
+> [!IMPORTANT]
+> **Owner of the thread object is responsible to manage all the thread lifecycle and must manage it calling join or detach explicitly.**
 
+- In *Example3* there is no compile error, because at time of assignment, the variable *thread_1* does not own any thread object (previously moved on variable *thread_2*).
+- *Example4* is wrong, exception is raised at runtime, because the variable *thread_1* is assigned with *std::move(thread_3)*, when it owns another thread already.
+  
+> [!IMPORTANT]
+> **Cannot be tranferred ownership when leftside variable owning a thread.**
 
+```
+#include <iostream>
+#include <thread>
+
+void func_1()
+{
+	std::cout << "This is a function 1";
+}
+
+void func_2()
+{
+	std::cout << "This is a function 2";
+}
+
+int main()
+{
+	std::thread thread_1(func_1);
+
+	//Example1: try to assigne one thread to another
+	std::thread thread_2 = thread_1;  //compile error
+
+	//Example2: move one thread form another
+	std::thread thread_2 = std::move(thread_1);
+
+	//Example3: implicit call to move constructor
+	thread_1 = std::thread(func_2);
+
+	//Example4: this is wrong
+	std::thread thread_3 = std::move(thread_2);	
+	thread_1 = std::move(thread_3);
+
+	thread_1.join();
+	thread_3.join();
+
+}
+```

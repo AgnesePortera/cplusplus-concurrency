@@ -19,7 +19,7 @@ List of rules to be followed for thread safe development in C++.
 - add function to be executed as parameter to thread class constructor
 - using callable object
 - using lambda expression
-```
+```cpp
 void func1()
 {
 	std::cout << "Hello from function \n";
@@ -67,7 +67,7 @@ If you forgot to join or detach on joinable thread, then at the time of destruct
 If any program have *std::terminate* call, it is considered **unsafe**.
 
 Defaulted constructed thread does not represent an execution and it is not joinable:
-```
+```cpp
 std::thread thread1;
 if(thread1.joinable()){
  printf("Never print this \n");
@@ -81,7 +81,7 @@ The main thread cannot wait the detached thread for finishing and the secondary 
 After a call to **join** or **detach**, the thread object become non joinable and can be destroyed safely.
 
 ## Pass parameter to a thread
-```
+```cpp
 void func_2(int& x)
 {
 	while (true)
@@ -118,7 +118,7 @@ For transferring the ownership of a thread, the move constructor can be used.
 > [!IMPORTANT]
 > **Cannot be tranferred ownership when leftside variable owning a thread.**
 
-```
+```cpp
 #include <iostream>
 #include <thread>
 

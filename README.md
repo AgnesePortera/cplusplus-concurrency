@@ -44,3 +44,19 @@ int main()
 std::cout << "\n\nAllowed max number of parallel threads : "
 		<< std::thread::hardware_concurrency() << std::endl;
 ```
+
+## Join and detach
+Properly constructed (means created with function, object constructor or lambda) thread object represent an active thread of execution in hardware level. This thread object is **joinable**.
+For any joinable thread, it must be called **join** or **detach** function. After calling these functions, the thread become non-joinable.
+
+If you forgot to join or detach on joinable thread, then at the time of destructor call to that thread object, **std::terminate** function will be called.
+If any program have *std::terminate* call, it is considered **unsafe**.
+
+Defaulted constructed thread does not represent an execution and it is not joinable:
+```
+std::thread thread1;
+if(thread1.joinable()){
+ printf("Never print this \n");
+}
+```
+

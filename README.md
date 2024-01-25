@@ -154,3 +154,12 @@ int main()
 
 }
 ```
+
+## Useful functions
+### get_id()
+- Return unique thread id for each active thread of execution
+- Return 0 for all non active threads
+
+
+
+

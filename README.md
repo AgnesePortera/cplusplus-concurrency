@@ -174,7 +174,7 @@ int main()
 	std::thread thread_2;
 
 	std::cout << "default consturcted thread id : " << thread_2.get_id() << std::endl; // 0 for non active thread
-	std::cout << "thread_1 id after joining : " << thread_1.get_id() << std::endl;
+	std::cout << "thread_1 id after joining : " << thread_1.get_id() << std::endl; // become 0 after join
 	std::cout << "Main thread id : " << std::this_thread::get_id() << std::endl;
 
 	std::cout << "\n\nAllowed max number of parallel threads : "
@@ -182,5 +182,50 @@ int main()
 }
 ```
 
+### sleep_for()
+- Blocks the execution of the current thread for at least the specified sleep duration
+- This function may block for longer than sleep duration due to scheduling or resource contention delays
+
+### yield()
+- Yield will give up the current time slice and re-insert the thread into the scheduling queue.
+- The amount of time that expires until the thread is executed again is usually entirely dependent upon the scheduler.
+- This allow the other threads that are available, to perform their tasks.
+
+### hardware_concurrency()
+- Return the number of concurrent threads supported by the implementation.
+- The value should be considered only a hint.
+- Using task switching or round robin, the number of threads is higher than the cores number.
+
+## Thread local storage
+- if a variable is declared as *thread_local*, then each thread is going to have its own, distinct object.
+- The storage duration is the entire execution of the thread in which it was created.
+- The value stored in the object is initialized when the thread is started.
+- When the thread is finished, there is a memory clean up of the variable.
+
+```cpp
+#include <iostream>
+#include <thread>
+#include <atomic>
 
 
+thread_local std::atomic<int> i = 0;
+
+void foo() {
+    ++i;
+    std::cout << i;
+}
+
+int main() {
+    std::thread t1(foo);
+    std::thread t2(foo);
+    std::thread t3(foo);
+
+    t1.join();
+    t2.join();
+    t3.join();
+
+    std::cout << std::endl;
+
+    // output is --> 111
+}
+```

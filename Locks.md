@@ -158,3 +158,25 @@ int main()
 	run_code();
 }
 ```
+
+## Deadlocks
+In case of multiple mutex, it can happen that multiple threads are blocked waiting for another mutex that is in use (like a circular condition).
+For completing an action, the thread must acquire multiple mutex in sequence. This situation can cause deadlocks, it depends on the order on which the mutex are acquired.
+
+### Locks while joining
+If there is one thread1 that is blocked in *thread2.join()* and thread2 is blocked on *thread1.join()*, also if no mutex are used, there is a classic deadlock scenario.
+
+## Unique_lock
+**unique_lock** is a general purpose mutex ownership wrapper. It can be used to manage 	mutexes like the *lock_guard* objects:
+- unlike the *lock_guard* object, it doesn't have to acquire the lock for the associated mutex in the constructor.
+- *unique_locks* are neither copy constructable, nor copy assignable.
+- *unique_locks* are move constructible and move assignable.
+- inside the constructor, the locking strategy can be defined (for example *std::defer_lock* for not acquiring the lock during construction, then for example can be called the *std::lock* function with multiple *unique_locks* for not having deadlock).
+```cpp  
+std::unique_lock<std::mutex> ul_1(m1, std::defer_lock);
+std::unique_lock<std::mutex> ul_2(m2, std::defer_lock);
+std::lock(ul_1, ul_2);
+```
+
+
+

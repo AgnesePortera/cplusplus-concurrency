@@ -228,3 +228,55 @@ int main()
 	std::cout << "The answer is " << the_answer_future.get() << std::endl;
 }
 ```
+### Async Task
+In C++ you can create asynchronous operation using **std::async** class.
+Its constructor allows you to specify the launch policy, the function to run on the asynchronous task and the arguments for that particular function.
+- *async( std::launch policy, Function&& f, Args&&... args)*
+  
+For the launch policy, you can specify:
+- std::launch::async --> tell the compilar to run the function on a separate thread
+- std::launch::deferred --> it is runned in the creator thread
+- std::launch::async | std::launch::deferred --> the compiler decide how to run this task
+
+In the template parameter of the std::future, must be specified the return type of the function associated to the async task (f1 return type is void, for f2 and f3 is int) or it can be used the *auto* keyword. In this case the async task f2 will run always in the same thread of the main one, because it is used a deferred policy (one the get function is called, it is executed the addition function). The async task f1 is instead always executed in a separate thread. For f3 the decision on thread execution is released to the compiler.
+
+```cpp
+#include <iostream>
+#include <future>
+#include <string>
+
+void printing()
+{
+	std::cout << "printing runs on-" << std::this_thread::get_id() << std::endl;
+}
+
+int addition(int x, int y)
+{
+	std::cout << "addition runs on-" << std::this_thread::get_id() << std::endl;
+	return x + y;
+}
+
+int substract(int x, int y)
+{
+	std::cout << "substract runs on-" << std::this_thread::get_id() << std::endl;
+	return x - y;
+}
+
+int main()
+{
+	std::cout << "main thread id -" << std::this_thread::get_id() << std::endl;
+
+	int x = 100;
+	int y = 50;
+
+	std::future<void> f1 = std::async(std::launch::async, printing);
+	std::future<int> f2 = std::async(std::launch::deferred, addition, x, y);
+	std::future<int> f3 = std::async(std::launch::deferred | std::launch::async,
+		substract, x, y);
+
+	f1.get();
+	std::cout << "value recieved using f2 future -" << f2.get() << std::endl;
+	std::cout << "value recieved using f2 future -" << f3.get() << std::endl;
+
+}
+```

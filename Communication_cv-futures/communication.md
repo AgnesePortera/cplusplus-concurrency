@@ -174,3 +174,32 @@ public:
 
 ```
 
+## Futures
+Futures provide a mechanism to access the results on an asynchronous operation.
+- A synchronous operation blocks a process until the operation completes.
+- An asynchronous operation is non-blocking and only initiates the operation. The caller could discover completion by some other mechanism (for example the futures).
+
+For example when the result of operation two is ready, it can transfer that result via futures to the operation one. The Operation one can proceed its work until it needs the result from operation two.
+```
+    SYNC                                                  ASYNC  
+
+|Operation 1|                                         |Operation 1|
+     |                                                      |
+     |                                                      |
+     |     |Operation 2|                                    |     |Operation 2|
+     ------------->                                         ------------->
+                  |                                         |            |
+		  |                                         |            |
+     <-------------                                         <------------- 
+     |                                                      |
+     |                                                      |
+     |                                                      |
+```
+
+If there is an **asynchronous task** and a **creator** thread, this last one will acquire the future object upon initiating the async operation and then proceed to its execution until it needs the async operation. In this case the creator thread will call the *get* function on that future. If the asynchronous operation is not finished yet, the creator thread is blocked until the asynchronous operation is finished, instead if the async operation is already finished, there is no blocking and it can update his shared state.
+
+Summary of steps:
+- The creator of the asynchronous task have to obtain the future associate with the asynchronous task.
+- When the creator of the async task need the result, it call the *get* method on the future.
+- *get* method may block if the asynchronous operation has not yet complete its execution.
+- When the asynchronous operation is ready to send a result to the creator, it can do so by modifying shared state that is linked to the creator's future.

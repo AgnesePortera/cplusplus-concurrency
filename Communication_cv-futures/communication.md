@@ -280,6 +280,63 @@ int main()
 
 }
 ```
+### std::packaged_task
+*Package_task* is another way of creating asynchronous operation using the standard library.
+
+- The class template **std::packaged_task** wraps any callable target so it can be invoked asynchronously. Callable target can be a function, a lambda expression or any other function object.
+- It's return value or exception thrown, is stored in a shared state which can be accessed through *std::future* objects.
+
+With the *std::package_task*, the template parameter must be specified in a particular way: first indicate the return type of the callable object and then inside the parentesis must be specified the type of the argument for the callable object. For example for function that takes two integer type arguments and returns integer type value, the template parameter would be like this:
+```cpp
+std::package_task<int(int,int)> task(callable object)
+```
+In the following example, the *add* function is wrapped using *package_task*. The *add* function takes two integer arguments and return an integer type, so the template parameter must be specified as "<int(int,int)>". Then the associated *std::future* is acquired. The *package_task* will not start automatically with the constructor, must be called explicitly, before calling the *get()* function on the future, otherwise the *future.get()* will not work properly. 
+
+When it is needed to run the task asynchrounously, a thread must be created, pass this *package_task* to the thread and detach it (example in the *task_thread()* function).
+With the thread constructed object, the *package_task* must be moved because it is not copiable. Then in the constructor of the thread must be passed the parameters value needed by the function of the packaged_test. Calling the *detach()* function, the thread will run asynchronously. 
+
+The function *task_normal()* will run in the main thread, the fucntion *task_thread()* will run in a separate thread because it is made asynchronously.
+ 
+```cpp
+#include <iostream>
+#include <future>
+#include <numeric>
+#include <thread>
+#include <functional>
+
+int add(int x, int y)
+{
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	std::cout << "add function runs in : " << std::this_thread::get_id() << std::endl;
+	return x + y;
+}
+
+void task_thread()
+{
+	std::packaged_task<int(int, int)> task_1(add);
+	std::future<int> future_1 = task_1.get_future();
+
+	std::thread thread_1(std::move(task_1), 5, 6);
+	thread_1.detach();
+
+	std::cout << "task thread - " << future_1.get() << "\n";
+}
+
+void task_normal()
+{
+	std::packaged_task<int(int, int)> task_1(add);
+	std::future<int> future_1 = task_1.get_future();
+	task_1(7, 8);
+	std::cout << "task normal - " << future_1.get() << "\n";
+}
+int main()
+{
+	task_thread();
+	task_normal();
+	std::cout << "main thread id : " << std::this_thread::get_id() << std::endl;
+}
+```
+
 ### std::promises
 
 ### Exception using std::futures

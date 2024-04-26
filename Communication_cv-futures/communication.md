@@ -280,3 +280,8 @@ int main()
 
 }
 ```
+### std::promises
+
+### Exception using std::futures
+
+### std::shared_futures

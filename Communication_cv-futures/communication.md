@@ -1,3 +1,13 @@
+- [Communication between thread using condition variables and futures](#communication-between-thread-using-condition-variables-and-futures)
+  * [Condition variables](#condition-variables)
+  * [Thread safe queue](#thread-safe-queue)
+  * [Futures](#futures)
+    + [Async Task](#async-task)
+    + [std::packaged_task](#std--packaged-task)
+    + [std::promises](#std--promises)
+    + [Exception using std::futures](#exception-using-std--futures)
+    + [std::shared_futures](#std--shared-futures)
+
 # Communication between thread using condition variables and futures
 There is the need to comunicate between threads for specific event occurence, without a continuous check on condition for CPU saving.
 

@@ -351,7 +351,7 @@ From this example it can be seen that the future has to wait until promise set t
 A *deadlock* can happen if the main thread set the promise after join the the printing thread.
 
 > [!IMPORTANT]
-> **Be mindfull when you are setting the promise value and joining the threads to avoid deadlocks scenario.**
+> **Be mindful when you are setting the promise value and joining the threads to avoid deadlocks scenario.**
 
 ```cpp
 #include <iostream>       

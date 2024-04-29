@@ -8,6 +8,7 @@
     + [Exception using std::futures](#exception-using-std--futures)
     + [std::shared_futures](#std--shared-futures)
 
+----
 # Communication between threads using condition variables and futures
 There is the need to comunicate between threads for specific event occurence, without a continuous check on condition for CPU saving.
 
@@ -391,6 +392,32 @@ int main()
 
 
 ### Exception using std::futures
+There is a way to propagate exepction through threads, using *std::promise*.
+
+For example if there is a thread that is waiting on a future until another thread sets its value, if an exception is thrown in that other thread, the ideal scenario would be to propagate that 
+exception to the waiting thread, so it can throw the exception as well. 
+
+STD promise class offers just that. Inside the member function of the *std::promise*, there is the function for setting the exception member function (complete docs on [cppreference](https://en.cppreference.com/w/cpp/thread/promise)):
+
+
+|**Member functions**||
+|-|-|
+|(constructor)|constructs the promise object (public member function)|
+|(destructor)| destructs the promise object (public member function)|
+|operator=|assigns the shared state (public member function)|
+|swap|swaps two promise objects (public member function)|
+|**Getting the result**||
+|get_future|returns a future associated with the promised result (public member function)|
+|**Setting the result**||
+|set_value|sets the result to specific value (public member function)|
+|set_value_at_thread_exit|sets the result to specific value while delivering the notification only at thread exit (public member function)|
+|set_exception|sets the result to indicate an exception (public member function)|
+|set_exception_at_thread_exit| sets the result to indicate an exception while delivering the notification only at thread exit (public member function)|
+
+The following example shows how to use the *set_exception* function in practise. 
+Two threads are launched from the main thread, printing thread and the calculation thread. The value is passed through a promise. The calculation thread ask to the user a value and if this
+value is greater than zero, it will calculate the square root and set the value to that promise, otherwise it thowns an exception.
+The printing thread is waiting for the result, but if an exception is thrown, it will catch it to the user as well because also the exception is propagated using promises and futures.
 
 ```cpp
 #include <iostream>       

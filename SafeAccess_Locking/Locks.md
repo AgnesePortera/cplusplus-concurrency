@@ -1,3 +1,13 @@
+- [Locking mechanisms](#locking-mechanisms)
+  * [Race condition](#race-condition)
+  * [Mutex](#mutex)
+    + [Lock_guard](#lock-guard)
+    + [Wrong mutex usage](#wrong-mutex-usage)
+  * [Deadlocks](#deadlocks)
+    + [Locks while joining](#locks-while-joining)
+  * [Unique_lock](#unique-lock)
+
+
 # Locking mechanisms
 For sharing memory between different threads, locking mechanism must be provided, otherwise the result output would be invalid.
 

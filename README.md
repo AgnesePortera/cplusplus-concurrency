@@ -1,3 +1,17 @@
+- [C++ concurrency](#c---concurrency)
+    + [std::thread class](#std--thread-class)
+  * [How to launch a thread](#how-to-launch-a-thread)
+  * [Join and detach](#join-and-detach)
+    + [Detach](#detach)
+  * [Pass parameter to a thread](#pass-parameter-to-a-thread)
+  * [Ownership of a thread](#ownership-of-a-thread)
+  * [Useful functions](#useful-functions)
+    + [get_id()](#get-id--)
+    + [sleep_for()](#sleep-for--)
+    + [yield()](#yield--)
+    + [hardware_concurrency()](#hardware-concurrency--)
+  * [Thread local storage](#thread-local-storage)
+
 # C++ concurrency
 List of rules to be followed for thread safe development in C++.
 

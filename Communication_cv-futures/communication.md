@@ -338,7 +338,103 @@ int main()
 ```
 
 ### std::promises
+*std::promises* class is a mechanism for transferring values between threads. 
+- Each *std::promise* object is paired with a *std::future* object
+- A thread with access to the *std::future* object can wait for the result to be set, while another thread that has access to the corresponding *std::promise* object can call *set_value()* to store the value and make the future ready.
+
+In the following, there is an example with uses promises and futures for transferring values between threads.
+There is a main thread and a printing thread which is going to read the value from the future. In the main thread is first created the *promise* object, which requires a type to be expected from the associated future object (in this case an integer). Then calling the *get_future()* on the promise, it is retrieved the type *std::future* associated to that promise. 
+Then it is created the thread associated to the function *print_result* and, as parameter, it is passed the *std::future* object.
+The main thread then will sleep for 5 seconds and then sets the promise value. The print thread, instead, will wait until the future gets ready and print out the value which is set by the main thread. 
+
+From this example it can be seen that the future has to wait until promise set the value.
+A *deadlock* can happen if the main thread set the promise after join the the printing thread.
+
+> [!IMPORTANT]
+> **Be mindfull when you are setting the promise value and joining the threads to avoid deadlocks scenario.**
+
+```cpp
+#include <iostream>       
+#include <thread>         
+#include <future>         
+
+void print_result(std::future<int>& fut) {
+        std::cout << "waiting for value from print thread \n";
+	int x = fut.get();
+	std::cout << "value: " << x << '\n';
+}
+
+int main()
+{
+	std::promise<int> prom;
+	std::future<int> fut = prom.get_future();
+
+	std::thread printing_thread(print_result, std::ref(fut));
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	prom.set_value(10);
+
+	printing_thread.join();
+}
+```
+
+
 
 ### Exception using std::futures
+
+```cpp
+#include <iostream>       
+#include <thread>         
+#include <future>         
+#include <stdexcept>   
+
+void throw_exception()
+{
+	throw  std::invalid_argument("input cannot be negative");
+}
+
+void calculate_squre_root(std::promise<int>& prom)
+{
+	int x = 1;
+	std::cout << "Please, enter an integer value: ";
+	try
+	{
+		std::cin >> x;
+		if (x < 0)
+		{
+			throw_exception();
+		}
+		prom.set_value(std::sqrt(x));
+	}
+	catch (std::exception&)
+	{
+		prom.set_exception(std::current_exception());
+	}
+}
+
+void print_result(std::future<int>& fut) {
+	try
+	{
+		int x = fut.get();
+		std::cout << "value: " << x << '\n';
+	}
+	catch (std::exception& e) {
+		std::cout << "[exception caught: " << e.what() << "]\n";
+	}
+}
+
+int main()
+{
+	std::promise<int> prom;
+	std::future<int> fut = prom.get_future();
+
+	std::thread printing_thread(print_result, std::ref(fut));
+	std::thread calculation_thread(calculate_squre_root, std::ref(prom));
+
+	printing_thread.join();
+	calculation_thread.join();
+}
+```
+
 
 ### std::shared_futures

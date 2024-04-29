@@ -1,3 +1,5 @@
+# C++ concurrency
+
 - [C++ concurrency](#c---concurrency)
     + [std::thread class](#std--thread-class)
   * [How to launch a thread](#how-to-launch-a-thread)
@@ -12,7 +14,7 @@
     + [hardware_concurrency()](#hardware-concurrency--)
   * [Thread local storage](#thread-local-storage)
 
-# C++ concurrency
+
 List of rules to be followed for thread safe development in C++.
 
 ### std::thread class
